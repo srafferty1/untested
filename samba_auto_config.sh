@@ -1,7 +1,7 @@
 #!/bin/bash
 
 group="g-local-nms-samba"
-share_dir="/data/csv_sources/mecm"
+share_dir="/data/csv_sources/nms_share"
 
 #Check if the user is root
 if [[ $EUID -ne 0 ]]; then
