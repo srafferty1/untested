@@ -6,13 +6,29 @@ share_dir="/data/csv_sources/nms_share"
 localuser="nms-admin"
 localuser_password="Password12345!"
 
-(echo "$localuser_password"; echo "$localuser_password") | smbpasswd -s -a "$localuser"
-
-
 #Check if the user is root
 if [[ $EUID -ne 0 ]]; then
   echo "This script must be run as root. Please run with sudo."
   exit 1
+fi
+
+# Ensure the local user exists, if not create the user and set the password
+if ! id "$localuser" &>/dev/null; then
+  echo "The local user $localuser does not exist. Creating the user..."
+  useradd -m "$localuser"
+  if [ $? -ne 0 ]; then
+    echo "Failed to create the local user $localuser."
+    exit 1
+  fi
+
+  echo "$localuser:$localuser_password" | chpasswd
+  if [ $? -ne 0 ]; then
+    echo "Failed to set the password for the local user $localuser."
+    exit 1
+  fi
+
+  # Add the local user to Samba using the password variable
+  echo -e "$localuser_password\n$localuser_password" | smbpasswd -s -a "$localuser"
 fi
 
 #Detect current realm
