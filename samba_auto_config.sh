@@ -75,9 +75,14 @@ cat <<EOL >> /etc/samba/smb.conf
    realm = $realm
    log file = /var/log/samba/%m.log
    log level = 1
+   bind interfaces only = yes
+   interfaces = lo eth0
+   
    idmap config * : backend = tdb
+   idmap config * : range = 3000-7999
    idmap config $workgroup : backend = rid
    idmap config $workgroup : range = 10000-99999
+   
    template shell = /bin/bash
 
 [mecm]
