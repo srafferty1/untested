@@ -75,12 +75,15 @@ if [ ! -d "$share_dir" ]; then
   mkdir -p $share_dir
 fi
 
-#Ensure the directory has the correct permissions for the AD group and lcoal user
+# Properly escape the realm and group for setfacl
+escaped_realm_group=$(echo "$realm\\$group" | sed 's/\\/\\\\/g')
+
+# Ensure the directory has the correct permissions for both the AD group and the local user
 chown -R "$localuser:$localuser" $share_dir
 chmod -R 0775 $share_dir
-setfacl -R -m g:"$realm\\$group":rwx $share_dir
+setfacl -R -m g:"$escaped_realm_group":rwx $share_dir
 setfacl -R -m u:"$localuser":rwx $share_dir
-setfacl -R -m d:g:"$realm\\$group":rwx $share_dir
+setfacl -R -m d:g:"$escaped_realm_group":rwx $share_dir
 setfacl -R -m d:u:"$localuser":rwx $share_dir
 
 #Verify the settings
