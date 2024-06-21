@@ -75,6 +75,8 @@ cat <<EOL >> /etc/samba/smb.conf
    realm = $realm
    log file = /var/log/samba/%m.log
    log level = 1
+   load printers = no
+   disable spoolss = yes
    bind interfaces only = yes
    interfaces = lo eth0
    
