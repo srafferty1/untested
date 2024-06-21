@@ -1,5 +1,14 @@
 #!/bin/bash
-
+#------
+chown -R nobody:nobody /data/csv_sources/nms_share
+chmod -R 0775 /data/csv_sources/nms_share
+setfacl -R -m u::rwx /data/csv_sources/nms_share
+setfacl -R -m g::rwx /data/csv_sources/nms_share
+setfacl -R -m o::rwx /data/csv_sources/nms_share
+setfacl -R -m d:u::rwx /data/csv_sources/nms_share
+setfacl -R -m d:g::rwx /data/csv_sources/nms_share
+setfacl -R -m d:o::rwx /data/csv_sources/nms_share
+#----------
 group="g-local-nms-samba"
 share_dir="/data/csv_sources/nms_share"
 
