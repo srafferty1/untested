@@ -1,16 +1,13 @@
 #!/bin/bash
-#------
-chown -R nobody:nobody /data/csv_sources/nms_share
-chmod -R 0775 /data/csv_sources/nms_share
-setfacl -R -m u::rwx /data/csv_sources/nms_share
-setfacl -R -m g::rwx /data/csv_sources/nms_share
-setfacl -R -m o::rwx /data/csv_sources/nms_share
-setfacl -R -m d:u::rwx /data/csv_sources/nms_share
-setfacl -R -m d:g::rwx /data/csv_sources/nms_share
-setfacl -R -m d:o::rwx /data/csv_sources/nms_share
-#----------
+
+
 group="g-local-nms-samba"
 share_dir="/data/csv_sources/nms_share"
+localuser="nms-admin"
+localuser_password="Password12345!"
+
+(echo "$localuser_password"; echo "$localuser_password") | smbpasswd -s -a "$localuser"
+
 
 #Check if the user is root
 if [[ $EUID -ne 0 ]]; then
@@ -62,11 +59,13 @@ if [ ! -d "$share_dir" ]; then
   mkdir -p $share_dir
 fi
 
-#Ensure the directory has the correct permissions for the AD group
+#Ensure the directory has the correct permissions for the AD group and lcoal user
 chown -R :"$realm\\$group" $share_dir
 chmod -R 0775 $share_dir
 setfacl -R -m g:"$realm\\$group":rwx $share_dir
+setfacl -R -m u:"$localuser":rwx $share_dir
 setfacl -R -m d:g:"$realm\\$group":rwx $share_dir
+setfacl -R -m d:u:"$localuser":rwx $share_dir
 
 #Verify the settings
 ls -ld $share_dir
@@ -96,9 +95,9 @@ cat <<EOL >> /etc/samba/smb.conf
    
    template shell = /bin/bash
 
-[mecm]
+[$(basename $share_dir)]
    path = $share_dir
-   valid users = @"$realm\\$group"
+   valid users = @"$realm\\$group", $localuser
    read only = no
    browsable = yes
    writable = yes
