@@ -75,28 +75,9 @@ if [ ! -d "$share_dir" ]; then
   mkdir -p $share_dir
 fi
 
-# Properly format the group name for setfacl
-realm_group="${realm^^}\\${group^^}"
-realm_group_escaped=$(echo "$realm_group" | sed 's/\\/\\\\/g')
-
-echo "Formatted and escaped realm group: $realm_group_escaped"
-
-# Ensure the directory has the correct permissions for both the AD group and the local user
-chown -R "$localuser:$localuser" "$share_dir"
-chmod -R 0775 "$share_dir"
-
-# Apply ACLs and debug
-{
-  setfacl -R -m g:"$realm_group_escaped":rwx "$share_dir" &&
-  setfacl -R -m u:"$localuser":rwx "$share_dir" &&
-  setfacl -R -m d:g:"$realm_group_escaped":rwx "$share_dir" &&
-  setfacl -R -m d:u:"$localuser":rwx "$share_dir"
-} || {
-  echo "Failed to set ACL. Debugging information:"
-  echo "Group: $realm_group_escaped"
-  echo "Directory: $share_dir"
-  exit 1
-}
+#openaccess
+chown -R nobody:nogroup "$share_dir"
+chmod -R 0777 "$share_dir"
 
 #Verify the settings
 ls -ld $share_dir
