@@ -87,6 +87,8 @@ getfacl $share_dir
 cp /etc/samba/smb.conf /etc/samba/smb.conf.bak
 cat /dev/null > /etc/samba/smb.conf
 
+escaped_realm_group=$(echo "$realm\\$group" | sed 's/\\/\\\\/g')
+
 #Configure Samba for AD integration
 cat <<EOL >> /etc/samba/smb.conf
 [global]
@@ -109,7 +111,7 @@ cat <<EOL >> /etc/samba/smb.conf
 
 [$(basename $share_dir)]
    path = $share_dir
-   valid users = @"$realm\\$group", $localuser
+   valid users = @"$escaped_realm_group", $localuser
    read only = no
    browsable = yes
    writable = yes
