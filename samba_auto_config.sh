@@ -60,7 +60,7 @@ if [ ! -d "$share_dir" ]; then
 fi
 
 #Ensure the directory has the correct permissions for the AD group and lcoal user
-chown -R :"$realm\\$group" $share_dir
+chown -R "$localuser:$localuser" $share_dir
 chmod -R 0775 $share_dir
 setfacl -R -m g:"$realm\\$group":rwx $share_dir
 setfacl -R -m u:"$localuser":rwx $share_dir
