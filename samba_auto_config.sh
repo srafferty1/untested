@@ -76,8 +76,8 @@ if [ ! -d "$share_dir" ]; then
 fi
 
 # Properly format the group name for setfacl
-realm_group="${realm^^}\\${group^^}"  # Convert to uppercase
-realm_group_escaped=$(echo "$realm_group" | sed 's/\\/\\\\/g')  # Escape backslashes
+realm_group="${realm^^}\\${group^^}"
+realm_group_escaped=$(echo "$realm_group" | sed 's/\\/\\\\/g')
 
 echo "Formatted and escaped realm group: $realm_group_escaped"
 
@@ -85,12 +85,18 @@ echo "Formatted and escaped realm group: $realm_group_escaped"
 chown -R "$localuser:$localuser" "$share_dir"
 chmod -R 0775 "$share_dir"
 
-# Set ACLs
-setfacl -R -m g:"$realm_group_escaped":rwx "$share_dir" || { echo "Failed to set ACL for group $realm_group_escaped"; exit 1; }
-setfacl -R -m u:"$localuser":rwx "$share_dir" || { echo "Failed to set ACL for user $localuser"; exit 1; }
-setfacl -R -m d:g:"$realm_group_escaped":rwx "$share_dir" || { echo "Failed to set default ACL for group $realm_group_escaped"; exit 1; }
-setfacl -R -m d:u:"$localuser":rwx "$share_dir" || { echo "Failed to set default ACL for user $localuser"; exit 1; }
-
+# Apply ACLs and debug
+{
+  setfacl -R -m g:"$realm_group_escaped":rwx "$share_dir" &&
+  setfacl -R -m u:"$localuser":rwx "$share_dir" &&
+  setfacl -R -m d:g:"$realm_group_escaped":rwx "$share_dir" &&
+  setfacl -R -m d:u:"$localuser":rwx "$share_dir"
+} || {
+  echo "Failed to set ACL. Debugging information:"
+  echo "Group: $realm_group_escaped"
+  echo "Directory: $share_dir"
+  exit 1
+}
 
 #Verify the settings
 ls -ld $share_dir
