@@ -1,0 +1,14 @@
+[global]
+   workgroup = WORKGROUP
+   server string = Samba Server
+   security = user
+   map to guest = bad user
+   dns proxy = no
+
+[nms_share]
+   path = /data/csv_sources/nms_share
+   browsable = yes
+   writable = yes
+   guest ok = yes
+   read only = no
+   valid users = nms-admin
